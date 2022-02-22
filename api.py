@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:\vqkthmpqckeycy:028c193cf3539d9243dfdda5557166ea60842454549cf10daeb993e245c8b296@ec2-3-228-222-169.compute-1.amazonaws.com:5432\dcqe7jb1qhhrra'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:\vqkthmpqckeycy:028c193cf3539d9243dfdda5557166ea60842454549cf10daeb993e245c8b296@ec2-3-228-222-169.compute-1.amazonaws.com:5432\dcqe7jb1qhhrra'
 
 db = SQLAlchemy(app)
 
