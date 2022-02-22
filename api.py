@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'thisissecret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:\vqkthmpqckeycy:028c193cf3539d9243dfdda5557166ea60842454549cf10daeb993e245c8b296@ec2-3-228-222-169.compute-1.amazonaws.com:5432\dcqe7jb1qhhrra'
 
 db = SQLAlchemy(app)
 
@@ -21,7 +21,7 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(50))
     admin = db.Column(db.Boolean)
 
@@ -146,6 +146,30 @@ def delete_user(current_user, public_id):
     db.session.delete(user)
     db.session.commit()
     return jsonify({'message': 'The user has been deleted!'})
+
+# allows user to register
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    name = data['name']
+    password = data['password']
+    if len(password) < 6:
+        return jsonify({'error': "Password is too short"}), 400
+    if len(name) < 3:
+        return jsonify({'error': "Name is too short"}), 400
+    if not name.isalnum() or " " in name:
+        return jsonify({'error': "Name should be alphanumeric and include no spaces"}), 400
+    if User.query.filter_by(name=name).first() is not None:
+        return jsonify({'error': "Name is taken"}), 409
+    hashed_password = generate_password_hash(data['password'], method='sha256')
+    new_user = User(public_id=str(uuid.uuid4()), name=name,
+                    password=hashed_password, admin=False)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({'message': 'New user created!'})
+
 
 # allows user to login and get token
 
